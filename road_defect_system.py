@@ -20,12 +20,13 @@ def show_testing_interface():
         if st.button('🔍 كشف العيوب', key='detect_button'):
             with st.spinner('🧠 جاري تحليل الصورة...'):
                 try:
+                    # تحميل نموذج YOLOv5 مخصص (تأكد من مسار النموذج)
                     model = torch.hub.load(
                         'ultralytics/yolov5', 'custom',
                         path='yolov5/runs/train/road_defects_model4/weights/best.pt',
                         force_reload=False
                     )
-                    model.conf = 0.01  # خفض عتبة الثقة لإظهار كل النتائج المحتملة
+                    model.conf = 0.01  # عتبة الثقة منخفضة لإظهار كل النتائج المحتملة
                     model.iou = 0.45
                     
                     if image.mode != 'RGB':
@@ -36,36 +37,43 @@ def show_testing_interface():
                     
                     st.subheader("🧠 نتائج الكشف")
                     
-                    # تحميل التوصيات
+                    # تحميل ملف التوصيات
                     try:
                         with open('repairs.json', 'r', encoding='utf-8') as f:
                             repairs = json.load(f)
                     except FileNotFoundError:
                         repairs = {}
-                    
+
                     if len(detected_boxes) > 0:
+                        # عرض الصورة مع النتائج
                         st.image(results.render()[0], caption='نتائج الكشف عن العيوب', use_container_width=True)
                         st.success("✅ تم اكتشاف العيوب التالية:")
                         
                         for *box, conf, cls in detected_boxes:
                             defect_name = model.names[int(cls)]
                             confidence = conf * 100
+                            repair_text = repairs.get(defect_name, "لا توجد توصية متوفرة لهذا النوع من العيوب.")
                             
-                            st.markdown(f"### {defect_name}")
-                            st.write(f"مستوى الثقة: {confidence:.1f}%")
-                            
-                            if defect_name in repairs:
-                                st.markdown("🛠️ **التوصية:**")
-                                st.info(repairs[defect_name])
-                            else:
-                                st.warning("لا توجد توصية متوفرة لهذا النوع من العيوب.")
-                            st.markdown("---")
+                            st.markdown(f"""
+                            <div style="text-align: right; direction: rtl; margin-bottom: 25px;">
+                                <h3 style="margin-bottom: 5px;">{defect_name}</h3>
+                                <p style="margin: 0;">مستوى الثقة: {confidence:.1f}%</p>
+                                <h4 style="margin-top: 10px;">🛠️ التوصية:</h4>
+                                <p style="white-space: pre-line;">{repair_text}</p>
+                            </div>
+                            """, unsafe_allow_html=True)
                     else:
-                        # إذا لم يتم اكتشاف عيب، نختار عيب عشوائي مع توصية واضحة
+                        # لم يتم اكتشاف أي عيب - نعرض عيب وتوصية عشوائية
                         defect, recommendation = get_random_defect_with_repair()
                         
-                        st.markdown(f"🔍 **قد يكون العيب:**  \n**{defect}**")
-                        st.markdown(f"🛠️ **التوصية:**  \n{recommendation}")
+                        st.markdown(f"""
+                        <div style="text-align: right; direction: rtl;">
+                            <h3>🔍 قد يكون العيب:</h3>
+                            <p style="font-size: 1.2em; font-weight: bold;">{defect}</p>
+                            <h4>🛠️ التوصية:</h4>
+                            <p style="white-space: pre-line;">{recommendation}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
                         
                         st.info("""
                         💡 **نصائح لتحسين دقة الكشف:**  
@@ -111,7 +119,7 @@ def show_home_page():
 def training_interface():
     st.header("📊 تدريب النموذج")
     st.info("ميزة تدريب النموذج تحت التطوير حالياً.")
-    # يمكنك إضافة كود تدريب هنا لاحقاً
+    # يمكن إضافة كود تدريب النموذج هنا لاحقاً
 
 def main():
     st.set_page_config(
@@ -121,6 +129,7 @@ def main():
         initial_sidebar_state="expanded"
     )
     
+    # تعريب الصفحة بالكامل مع ضبط الاتجاه والتمثيل الصحيح
     st.markdown("""
         <style>
             .stApp {
