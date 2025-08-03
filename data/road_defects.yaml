@@ -1,0 +1,10 @@
+# Road Defects Dataset Configuration
+train: C:\Users\ahmed\Desktop\new road\road_defects_dataset\images\train
+val: C:\Users\ahmed\Desktop\new road\road_defects_dataset\images\val
+test: C:\Users\ahmed\Desktop\new road\road_defects_dataset\images\test
+
+# Number of classes
+nc: 14
+
+# Class names
+names: ['التدهور والتآكل', 'بري الركام', 'الشروخ الحرارية', 'التفكيك', 'التموجات', 'الحفر', 'الشروخ الانعكاسية', 'النزيف', 'الأخاديد', 'تشققات التعب', 'تشققات الحواف', 'تشققات المفاصل', 'الشروخ الانزلاقية', 'الشروخ الكتلية']
